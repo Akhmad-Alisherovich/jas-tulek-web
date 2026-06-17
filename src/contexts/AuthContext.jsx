@@ -88,8 +88,9 @@ export const AuthProvider = ({ children }) => {
         setProfile({
           id: sessionUser.id,
           email: sessionUser.email,
-          role: 'student',
-          has_ai_access: false
+          full_name: sessionUser.user_metadata?.full_name || sessionUser.email.split('@')[0],
+          role: sessionUser.email === 'ahmad_sh2001@mail.ru' ? 'admin' : 'student',
+          has_ai_access: sessionUser.email === 'ahmad_sh2001@mail.ru'
         });
       } else if (data) {
         setProfile(data);
