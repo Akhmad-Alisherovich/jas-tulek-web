@@ -1,0 +1,77 @@
+world_01_ancient_civilizations.webp
+Kazakh section title: 01. Ежелгі әлем өркениеттері
+Image size: 512 x 288 px
+Format: WebP
+Quality: 80%
+
+world_02_middle_ages.webp
+Kazakh section title: 02. Орта ғасырлар кезеңі
+Image size: 512 x 288 px
+Format: WebP
+Quality: 80%
+
+world_03_great_geographical_discoveries.webp
+Kazakh section title: 03. Ұлы географиялық ашылулар және олардың салдары
+Image size: 512 x 288 px
+Format: WebP
+Quality: 80%
+
+world_04_modern_age.webp
+Kazakh section title: 04. Жаңа заман
+Image size: 512 x 288 px
+Format: WebP
+Quality: 80%
+
+world_05_world_war_1.webp
+Kazakh section title: 05. ХХ ғасырдың басындағы әлем. Бірінші дүниежүзілік соғыс: себептері мен салдары
+Image size: 512 x 288 px
+Format: WebP
+Quality: 80%
+
+world_06_interwar_world.webp
+Kazakh section title: 06. Екі дүниежүзілік соғыс арасындағы әлем
+Image size: 512 x 288 px
+Format: WebP
+Quality: 80%
+
+world_07_world_war_2.webp
+Kazakh section title: 07. Екінші дүниежүзілік соғыс: себептері мен салдары
+Image size: 512 x 288 px
+Format: WebP
+Quality: 80%
+
+world_08_world_second_half_20th.webp
+Kazakh section title: 08. ХХ ғасырдың екінші жартысындағы әлем
+Image size: 512 x 288 px
+Format: WebP
+Quality: 80%
+
+world_09_ancient_culture.webp
+Kazakh section title: 09. Ежелгі әлем мәдениетінің дамуы
+Image size: 512 x 288 px
+Format: WebP
+Quality: 80%
+
+world_10_medieval_culture.webp
+Kazakh section title: 10. Ортағасырдағы мәдениеттің дамуы
+Image size: 512 x 288 px
+Format: WebP
+Quality: 80%
+
+world_11_modern_culture.webp
+Kazakh section title: 11. Жаңа заманда мәдениеттің дамуы
+Image size: 512 x 288 px
+Format: WebP
+Quality: 80%
+
+world_12_20_21_century_culture_science.webp
+Kazakh section title: 12. ХХ ғасыр — ХХІ ғасырдың басындағы мәдениет пен ғылым
+Image size: 512 x 288 px
+Format: WebP
+Quality: 80%
+
+world_13_context_tasks.webp
+Kazakh section title: 13. Контекстік тапсырмалар
+Image size: 512 x 288 px
+Format: WebP
+Quality: 80%

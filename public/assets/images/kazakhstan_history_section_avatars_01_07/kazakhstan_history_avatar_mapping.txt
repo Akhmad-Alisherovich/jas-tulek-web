@@ -1,0 +1,43 @@
+Kazakhstan History avatar image mapping
+
+filename: kaz_01_ancient_period.webp
+section: 01. Ежелгі кезең
+image size: 512 x 288 px
+format: WebP
+quality: 80%
+
+filename: kaz_02_medieval_period.webp
+section: 02. Орта ғасыр кезеңі
+image size: 512 x 288 px
+format: WebP
+quality: 80%
+
+filename: kaz_03_new_age.webp
+section: 03. Жаңа заман
+image size: 512 x 288 px
+format: WebP
+quality: 80%
+
+filename: kaz_04_first_half_20th_century.webp
+section: 04. Қазақстан ХХ ғасырдың бірінші жартысында
+image size: 512 x 288 px
+format: WebP
+quality: 80%
+
+filename: kaz_05_second_half_20th_21st_century.webp
+section: 05. ХХ ғасырдың екінші жартысы — XXI ғасырдың басындағы Қазақстан
+image size: 512 x 288 px
+format: WebP
+quality: 80%
+
+filename: kaz_06_cultural_development.webp
+section: 06. Мәдениеттің дамуы
+image size: 512 x 288 px
+format: WebP
+quality: 80%
+
+filename: kaz_07_context_tasks.webp
+section: 07. Контекстік тапсырмалар
+image size: 512 x 288 px
+format: WebP
+quality: 80%

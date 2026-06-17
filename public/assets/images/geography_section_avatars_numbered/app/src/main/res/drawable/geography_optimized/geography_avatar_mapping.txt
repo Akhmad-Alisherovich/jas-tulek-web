@@ -1,0 +1,8 @@
+00_geography.webp — География
+01_geographical_research_methods.webp — Географиялық зерттеу әдістері
+02_cartography_geoinformatics.webp — Картография және геоинформатика
+03_physical_geography_geoecology.webp — Физикалық география. Табиғатты пайдалану және геоэкология
+04_social_geography.webp — Әлеуметтік география
+05_economic_geography_geoeconomics.webp — Экономикалық география. Геоэкономика
+06_country_political_geography_geopolitics.webp — Елтану және саяси география негіздері. Геосаясат
+07_global_problems.webp — Адамзаттың ғаламдық проблемалары
