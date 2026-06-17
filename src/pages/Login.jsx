@@ -13,23 +13,57 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    
+    const formattedEmail = email.trim().toLowerCase();
+    if (!password) {
+      setError('Құпиясөз енгізіңіз');
+      return;
+    }
+
     setLoading(true);
 
     try {
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password
+        email: formattedEmail,
+        password: password
       });
 
-      if (signInError) throw signInError;
-      
-      navigate('/subjects');
-    } catch (err) {
-      if (err.message.includes('Supabase is not configured')) {
-        setError('Supabase баптауы табылмады. VITE_SUPABASE_URL және VITE_SUPABASE_ANON_KEY мәндерін Netlify Environment Variables ішіне қосыңыз.');
-      } else {
-        setError(err.message === 'Invalid login credentials' ? 'Логин немесе құпиясөз қате.' : err.message);
+      if (signInError) {
+        console.error('Supabase signInWithPassword error:', signInError);
+        
+        if (signInError.message.includes('Supabase is not configured') || signInError.message.includes('missing env')) {
+          throw new Error('Supabase баптауы жоқ');
+        } else if (signInError.message === 'Invalid login credentials' || signInError.code === 'invalid_credentials') {
+          throw new Error('Email немесе құпиясөз қате');
+        } else if (signInError.message === 'Email not confirmed' || signInError.code === 'email_not_confirmed') {
+          throw new Error('Email расталмаған');
+        } else {
+          throw signInError;
+        }
       }
+      
+      // Fetch user profile to route based on role
+      if (data.user) {
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', data.user.id)
+          .single();
+          
+        if (profileError) {
+          console.error('Error fetching profile:', profileError);
+          // Fallback if profile fails
+          navigate('/subjects');
+        } else {
+          if (profile.role === 'admin') {
+            navigate('/admin');
+          } else {
+            navigate('/subjects');
+          }
+        }
+      }
+    } catch (err) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
