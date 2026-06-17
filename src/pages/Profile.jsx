@@ -4,9 +4,38 @@ import { Link } from 'react-router-dom';
 import { User, Mail, Calendar, Shield, Phone, GraduationCap, BarChart2, Settings, Users, BookOpen } from 'lucide-react';
 
 const Profile = () => {
-  const { profile, user } = useAuth();
+  const { profile, user, loading } = useAuth();
 
-  if (!profile || !user) return <div className="container section" style={{ textAlign: 'center' }}>Күте тұрыңыз...</div>;
+  if (loading) {
+    return (
+      <div className="container section" style={{ textAlign: 'center', minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div>
+          <div style={{ 
+            border: '4px solid #f3f3f3', 
+            borderTop: '4px solid #1c4532', 
+            borderRadius: '50%', 
+            width: '40px', 
+            height: '40px', 
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 1rem'
+          }} />
+          <p style={{ color: '#6b7280', fontWeight: '500' }}>Күте тұрыңыз...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!profile || !user) {
+    return (
+      <div className="container section" style={{ textAlign: 'center', minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ backgroundColor: '#fee2e2', padding: '2rem', borderRadius: '16px', color: '#b91c1c', maxWidth: '500px' }}>
+          <Shield size={48} style={{ margin: '0 auto 1rem' }} />
+          <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem', fontWeight: 'bold' }}>Қате</h2>
+          <p>Профиль деректерін жүктеу мүмкін болмады. Supabase profiles кестесін және RLS policy тексеріңіз.</p>
+        </div>
+      </div>
+    );
+  }
 
   const phone = user?.user_metadata?.phone || 'Көрсетілмеген';
   const grade = user?.user_metadata?.grade || 'Көрсетілмеген';
@@ -48,7 +77,7 @@ const Profile = () => {
           </div>
           <div>
             <h1 style={{ margin: '0 0 0.5rem 0', fontSize: '1.75rem' }}>{profile.full_name || 'Аты-жөні көрсетілмеген'}</h1>
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
               <span style={{ backgroundColor: 'rgba(255,255,255,0.2)', padding: '0.25rem 0.75rem', borderRadius: '999px', fontSize: '0.875rem' }}>
                 {profile.role === 'admin' ? 'Әкімші' : 'Оқушы'}
               </span>
@@ -68,7 +97,7 @@ const Profile = () => {
                 <div style={iconContainerStyle}><Mail size={20} /></div>
                 <div>
                   <span style={{ display: 'block', fontSize: '0.75rem', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Email</span>
-                  <span style={{ fontWeight: '600', color: '#374151' }}>{profile.email}</span>
+                  <span style={{ fontWeight: '600', color: '#374151', wordBreak: 'break-all' }}>{profile.email}</span>
                 </div>
               </div>
 
@@ -96,66 +125,49 @@ const Profile = () => {
                 <div style={iconContainerStyle}><Calendar size={20} /></div>
                 <div>
                   <span style={{ display: 'block', fontSize: '0.75rem', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Тіркелген күні</span>
-                  <span style={{ fontWeight: '600', color: '#374151' }}>{new Date(profile.created_at).toLocaleDateString('kk-KZ')}</span>
+                  <span style={{ fontWeight: '600', color: '#374151' }}>{new Date(profile.created_at || new Date()).toLocaleDateString('kk-KZ')}</span>
                 </div>
               </div>
 
-              <div style={{...infoItemStyle, borderBottom: 'none'}}>
-                <div style={{...iconContainerStyle, backgroundColor: profile.has_ai_access ? '#eaf2ec' : '#fee2e2', color: profile.has_ai_access ? '#1c4532' : '#ef4444'}}>
+              <div style={{ ...infoItemStyle, borderBottom: 'none' }}>
+                <div style={{ ...iconContainerStyle, backgroundColor: profile.has_ai_access ? '#dcfce7' : '#fee2e2', color: profile.has_ai_access ? '#166534' : '#991b1b' }}>
                   <Shield size={20} />
                 </div>
                 <div>
                   <span style={{ display: 'block', fontSize: '0.75rem', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>AI Ассистент рұқсаты</span>
-                  <span style={{ fontWeight: '600', color: profile.has_ai_access ? '#1c4532' : '#ef4444' }}>
-                    {profile.has_ai_access ? 'Қосылған' : 'Өшірулі'}
+                  <span style={{ fontWeight: '600', color: profile.has_ai_access ? '#16a34a' : '#ef4444' }}>
+                    {profile.has_ai_access ? 'Рұқсат берілген' : 'Рұқсат жоқ'}
                   </span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Action / Tools Card */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            {profile.role === 'admin' ? (
-              <div style={cardStyle}>
-                <h2 style={{ margin: '0 0 1.5rem 0', fontSize: '1.25rem', color: '#111827' }}>Әкімші панелі</h2>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <Link to="/admin" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', backgroundColor: '#f9fafb', borderRadius: '12px', textDecoration: 'none', color: '#1f2937', fontWeight: '500', transition: 'background-color 0.2s' }}>
-                    <Users size={24} color="#7b9c8b" />
-                    Оқушыларды басқару
+          {/* Quick Actions Card */}
+          <div style={cardStyle}>
+            <h2 style={{ margin: '0 0 1.5rem 0', fontSize: '1.25rem', color: '#111827' }}>Жылдам сілтемелер</h2>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {profile.role === 'admin' ? (
+                <>
+                  <Link to="/admin" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', backgroundColor: '#eaf2ec', color: '#1c4532', borderRadius: '12px', textDecoration: 'none', fontWeight: '600', transition: 'background-color 0.2s' }}>
+                    <Users size={20} /> Оқушыларды басқару
                   </Link>
-                  <Link to="/admin/subjects" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', backgroundColor: '#f9fafb', borderRadius: '12px', textDecoration: 'none', color: '#1f2937', fontWeight: '500', transition: 'background-color 0.2s' }}>
-                    <BookOpen size={24} color="#7b9c8b" />
-                    Пәндер мен тақырыптар
+                  <Link to="/admin-placeholders" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', backgroundColor: '#f3f4f6', color: '#374151', borderRadius: '12px', textDecoration: 'none', fontWeight: '600', transition: 'background-color 0.2s' }}>
+                    <Settings size={20} /> Жүйе баптаулары
                   </Link>
-                  <Link to="/admin/settings" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', backgroundColor: '#f9fafb', borderRadius: '12px', textDecoration: 'none', color: '#1f2937', fontWeight: '500', transition: 'background-color 0.2s' }}>
-                    <Settings size={24} color="#7b9c8b" />
-                    Жүйе баптаулары
+                </>
+              ) : (
+                <>
+                  <Link to="/progress" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', backgroundColor: '#eff6ff', color: '#1d4ed8', borderRadius: '12px', textDecoration: 'none', fontWeight: '600', transition: 'background-color 0.2s' }}>
+                    <BarChart2 size={20} /> Менің прогресім
                   </Link>
-                </div>
-              </div>
-            ) : (
-              <div style={cardStyle}>
-                <h2 style={{ margin: '0 0 1.5rem 0', fontSize: '1.25rem', color: '#111827' }}>Оқу процесі</h2>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <Link to="/progress" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.5rem', backgroundColor: '#1c4532', borderRadius: '16px', textDecoration: 'none', color: 'white', fontWeight: '500', boxShadow: '0 10px 15px -3px rgba(28, 69, 50, 0.3)' }}>
-                    <BarChart2 size={28} />
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <span style={{ fontSize: '1.125rem' }}>Менің прогресім</span>
-                      <span style={{ fontSize: '0.85rem', opacity: 0.8 }}>Тест нәтижелерін көру</span>
-                    </div>
+                  <Link to="/subjects" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', backgroundColor: '#eaf2ec', color: '#1c4532', borderRadius: '12px', textDecoration: 'none', fontWeight: '600', transition: 'background-color 0.2s' }}>
+                    <BookOpen size={20} /> Пәндерге өту
                   </Link>
-                  
-                  <Link to="/subjects" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.5rem', backgroundColor: '#f9fafb', borderRadius: '16px', textDecoration: 'none', color: '#1f2937', fontWeight: '500', border: '1px solid #e5e7eb' }}>
-                    <BookOpen size={28} color="#7b9c8b" />
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <span style={{ fontSize: '1.125rem' }}>Пәндерге өту</span>
-                      <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>Оқуды жалғастыру</span>
-                    </div>
-                  </Link>
-                </div>
-              </div>
-            )}
+                </>
+              )}
+            </div>
           </div>
           
         </div>

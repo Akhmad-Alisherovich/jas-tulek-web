@@ -9,14 +9,23 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+
     // Check active sessions and sets the user
     const fetchSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
-      } else {
-        setLoading(false);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (mounted) {
+          setUser(session?.user ?? null);
+          if (session?.user) {
+            await fetchProfile(session.user);
+          } else {
+            setLoading(false);
+          }
+        }
+      } catch (err) {
+        console.error('Session fetch error:', err);
+        if (mounted) setLoading(false);
       }
     };
 
@@ -24,32 +33,65 @@ export const AuthProvider = ({ children }) => {
 
     // Listen for changes on auth state (logged in, signed out, etc.)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        await fetchProfile(session.user.id);
-      } else {
-        setProfile(null);
-        setLoading(false);
+      if (mounted) {
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          await fetchProfile(session.user);
+        } else {
+          setProfile(null);
+          setLoading(false);
+        }
       }
     });
 
     return () => {
+      mounted = false;
       if (subscription) subscription.unsubscribe();
     };
   }, []);
 
-  const fetchProfile = async (userId) => {
+  const fetchProfile = async (sessionUser) => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, full_name, email, role, has_ai_access, created_at')
-        .eq('id', userId)
+        .select('*')
+        .eq('id', sessionUser.id)
         .single();
         
-      if (error && error.code !== 'PGRST116') {
+      if (error && error.code === 'PGRST116') {
+        // Profile not found, insert default profile
+        const newProfile = {
+          id: sessionUser.id,
+          email: sessionUser.email,
+          full_name: sessionUser.user_metadata?.full_name || sessionUser.email.split('@')[0],
+          role: 'student',
+          has_ai_access: false,
+          created_at: new Date().toISOString()
+        };
+
+        const { data: insertedData, error: insertError } = await supabase
+          .from('profiles')
+          .insert([newProfile])
+          .select()
+          .single();
+
+        if (insertError) {
+          console.error('Error creating profile:', insertError);
+          // Set partial profile so it doesn't infinite load
+          setProfile(newProfile);
+        } else {
+          setProfile(insertedData);
+        }
+      } else if (error) {
         console.error('Error fetching profile:', error);
-      }
-      if (data) {
+        // Fallback to avoid infinite loading
+        setProfile({
+          id: sessionUser.id,
+          email: sessionUser.email,
+          role: 'student',
+          has_ai_access: false
+        });
+      } else if (data) {
         setProfile(data);
       }
     } catch (err) {
@@ -90,7 +132,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };
