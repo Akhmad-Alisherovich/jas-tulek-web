@@ -11,7 +11,8 @@ const SubjectsList = () => {
       try {
         const { data, error } = await supabase
           .from('subjects')
-          .select('*')
+          .select('id, title, description, icon, color, is_active, order_index')
+          .eq('is_active', true)
           .order('order_index', { ascending: true });
           
         if (error) throw error;

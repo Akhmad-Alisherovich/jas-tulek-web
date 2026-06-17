@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
+import { useAuth } from '../contexts/AuthContext';
 import { ArrowLeft } from 'lucide-react';
 
 const TopicDetail = () => {
   const { subjectId, topicId } = useParams();
+  const { user } = useAuth();
   const [topic, setTopic] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -13,12 +15,27 @@ const TopicDetail = () => {
       try {
         const { data, error } = await supabase
           .from('topics')
-          .select('*')
+          .select('id, title, content')
           .eq('id', topicId)
           .single();
           
         if (error) throw error;
         if (data) setTopic(data);
+
+        // Mark as completed in student_progress
+        if (user) {
+          const { error: progressError } = await supabase
+            .from('student_progress')
+            .upsert({
+              user_id: user.id,
+              subject_id: subjectId,
+              topic_id: topicId,
+              progress_percent: 100,
+              is_completed: true,
+              updated_at: new Date().toISOString()
+            }, { onConflict: 'user_id,subject_id,topic_id' });
+          if (progressError) console.error('Error updating progress:', progressError);
+        }
       } catch (err) {
         console.error('Error fetching topic:', err);
       } finally {

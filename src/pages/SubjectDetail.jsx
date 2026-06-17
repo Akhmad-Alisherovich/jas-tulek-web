@@ -7,21 +7,22 @@ const SubjectDetail = () => {
   const { subjectId } = useParams();
   const [subject, setSubject] = useState(null);
   const [topics, setTopics] = useState([]);
-  const [tests, setTests] = useState([]);
+  const [hasTest, setHasTest] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        const [subRes, topicsRes, testsRes] = await Promise.all([
+        const [subRes, topicsRes, questionsRes] = await Promise.all([
           supabase.from('subjects').select('*').eq('id', subjectId).single(),
-          supabase.from('topics').select('*').eq('subject_id', subjectId).order('order_index', { ascending: true }),
-          supabase.from('tests').select('*').eq('subject_id', subjectId)
+          supabase.from('topics').select('id, title, is_free, order_index').eq('subject_id', subjectId).eq('is_active', true).order('order_index', { ascending: true }),
+          supabase.from('test_questions').select('id').eq('subject_id', subjectId).limit(1)
         ]);
         
         if (subRes.data) setSubject(subRes.data);
         if (topicsRes.data) setTopics(topicsRes.data);
-        if (testsRes.data) setTests(testsRes.data);
+        // If there are questions, it means we have a test for this subject
+        setHasTest(questionsRes.data && questionsRes.data.length > 0);
       } catch (err) {
         console.error('Error fetching subject details:', err);
       } finally {
@@ -64,16 +65,14 @@ const SubjectDetail = () => {
 
           <div>
             <h2 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><HelpCircle /> Тесттер</h2>
-            {tests.length === 0 ? (
+            {!hasTest ? (
               <div className="card"><p>Бұл пән бойынша әзірге тест жоқ.</p></div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {tests.map(test => (
-                  <div key={test.id} className="card" style={{ backgroundColor: 'var(--bg-surface-hover)' }}>
-                    <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.125rem' }}>{test.title}</h3>
-                    <Link to={`/tests/${subjectId}/${test.id}`} className="btn btn-primary" style={{ width: '100%' }}>Тестті бастау</Link>
-                  </div>
-                ))}
+                <div className="card" style={{ backgroundColor: 'var(--bg-surface-hover)' }}>
+                  <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.125rem' }}>Пән бойынша тест тапсыру</h3>
+                  <Link to={`/tests/${subjectId}/general`} className="btn btn-primary" style={{ width: '100%' }}>Тестті бастау</Link>
+                </div>
               </div>
             )}
           </div>

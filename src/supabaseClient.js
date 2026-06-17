@@ -10,7 +10,7 @@ let supabase;
 if (supabaseUrl && supabaseAnonKey && supabaseUrl !== 'your_supabase_url_here') {
   supabase = createClient(supabaseUrl, supabaseAnonKey);
 } else {
-  console.warn("Supabase is not configured! Check your .env file.");
+  console.error("Supabase баптауы табылмады. VITE_SUPABASE_URL және VITE_SUPABASE_ANON_KEY мәндерін Netlify Environment Variables ішіне қосыңыз немесе .env.local файлын тексеріңіз.");
   supabase = {
     auth: {
       getSession: async () => ({ data: { session: null }, error: null }),
