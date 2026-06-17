@@ -14,6 +14,8 @@ import TestPage from './pages/TestPage';
 import AiChat from './pages/AiChat';
 import Profile from './pages/Profile';
 import Progress from './pages/Progress';
+import AdminUsers from './pages/AdminUsers';
+import { AdminSubjects, AdminSettings } from './pages/AdminPlaceholders';
 
 function App() {
   return (
@@ -34,6 +36,11 @@ function App() {
               <Route path="/ai" element={<AiChat />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/progress" element={<Progress />} />
+              
+              {/* Admin Routes */}
+              <Route path="/admin" element={<AdminUsers />} />
+              <Route path="/admin/subjects" element={<AdminSubjects />} />
+              <Route path="/admin/settings" element={<AdminSettings />} />
             </Route>
           </Route>
         </Routes>
