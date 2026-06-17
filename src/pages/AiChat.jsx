@@ -8,7 +8,7 @@ const AiChat = () => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  if (!profile?.has_ai_access) {
+  if (!profile?.has_ai_access && profile?.role !== 'admin') {
     return (
       <section className="section" style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div className="card" style={{ maxWidth: '500px', textAlign: 'center', borderTop: '4px solid var(--color-warning)' }}>
