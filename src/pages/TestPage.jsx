@@ -19,14 +19,35 @@ const TestPage = () => {
   useEffect(() => {
     const fetchTest = async () => {
       try {
+        // testId parameter actually contains the topic_id based on our new SubjectDetail logic
         const { data, error } = await supabase
-          .from('tests')
+          .from('test_questions')
           .select('*')
-          .eq('id', testId)
-          .single();
+          .eq('topic_id', testId)
+          .order('order_index', { ascending: true });
           
         if (error) throw error;
-        if (data) setTest(data);
+        if (data && data.length > 0) {
+          const formattedQuestions = data.map(q => {
+             const options = [];
+             if (q.option_a) options.push(q.option_a);
+             if (q.option_b) options.push(q.option_b);
+             if (q.option_c) options.push(q.option_c);
+             if (q.option_d) options.push(q.option_d);
+             if (q.option_e) options.push(q.option_e);
+             
+             const correctIndex = options.indexOf(q.correct_answer);
+             
+             return {
+               id: q.id,
+               question: q.question,
+               options: options,
+               correctAnswer: correctIndex !== -1 ? correctIndex : 0,
+               explanation: q.explanation
+             };
+          });
+          setTest({ questions: formattedQuestions });
+        }
       } catch (err) {
         console.error('Error fetching test:', err);
       } finally {
@@ -56,16 +77,19 @@ const TestPage = () => {
     });
     setScore(currentScore);
     
-    // Save to test_results
+    // Save to test_result
     if (user) {
       try {
-        await supabase.from('test_results').insert([
+        await supabase.from('test_result').insert([
           {
             user_id: user.id,
             subject_id: subjectId,
-            test_id: testId,
+            topic_id: testId,
             score: currentScore,
-            total_questions: test.questions.length
+            total: test.questions.length,
+            correct: currentScore,
+            wrong: test.questions.length - currentScore,
+            percentage: Math.round((currentScore / test.questions.length) * 100)
           }
         ]);
       } catch (err) {

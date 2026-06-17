@@ -40,8 +40,8 @@ const SubjectsList = () => {
           <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))' }}>
             {subjects.map((sub) => (
               <Link to={`/subjects/${sub.id}`} className="card" key={sub.id} style={{ borderTop: `4px solid ${sub.color || 'var(--color-primary)'}`, textAlign: 'center', display: 'block' }}>
-                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>{sub.icon}</div>
-                <h3 style={{ marginTop: '1rem' }}>{sub.title}</h3>
+                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>{sub.icon_url || '📚'}</div>
+                <h3 style={{ marginTop: '1rem' }}>{sub.name}</h3>
                 <p style={{ fontSize: '0.875rem' }}>{sub.description}</p>
                 <div className="btn btn-secondary" style={{ marginTop: '1rem', width: '100%' }}>Оқуды бастау</div>
               </Link>

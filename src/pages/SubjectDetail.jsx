@@ -13,15 +13,22 @@ const SubjectDetail = () => {
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        const [subRes, topicsRes, testsRes] = await Promise.all([
+        const [subRes, topicsRes, tqRes] = await Promise.all([
           supabase.from('subjects').select('*').eq('id', subjectId).single(),
           supabase.from('topics').select('*').eq('subject_id', subjectId).order('order_index', { ascending: true }),
-          supabase.from('tests').select('*').eq('subject_id', subjectId)
+          supabase.from('test_questions').select('topic_id').eq('subject_id', subjectId)
         ]);
         
         if (subRes.data) setSubject(subRes.data);
-        if (topicsRes.data) setTopics(topicsRes.data);
-        if (testsRes.data) setTests(testsRes.data);
+        if (topicsRes.data) {
+          setTopics(topicsRes.data);
+          // Tests are now grouped by topic_id
+          const topicIdsWithTests = new Set(tqRes.data?.map(q => q.topic_id) || []);
+          const availableTests = topicsRes.data
+            .filter(t => topicIdsWithTests.has(t.id))
+            .map(t => ({ id: t.id, title: t.title + ' (Тест)' }));
+          setTests(availableTests);
+        }
       } catch (err) {
         console.error('Error fetching subject details:', err);
       } finally {
@@ -38,9 +45,9 @@ const SubjectDetail = () => {
     <section className="section" style={{ minHeight: '80vh' }}>
       <div className="container">
         <div style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <span style={{ fontSize: '3rem' }}>{subject.icon}</span>
+          <span style={{ fontSize: '3rem' }}>{subject.icon_url || '📚'}</span>
           <div>
-            <h1 style={{ margin: 0 }}>{subject.title}</h1>
+            <h1 style={{ margin: 0 }}>{subject.name}</h1>
             <p style={{ margin: 0 }}>{subject.description}</p>
           </div>
         </div>

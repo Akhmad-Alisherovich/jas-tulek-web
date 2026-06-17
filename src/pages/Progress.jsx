@@ -12,8 +12,8 @@ const Progress = () => {
     const fetchResults = async () => {
       try {
         const { data, error } = await supabase
-          .from('test_results')
-          .select('*, tests(title), subjects(title)')
+          .from('test_result')
+          .select('*, topics(title), subjects(name)')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false });
           
@@ -32,7 +32,7 @@ const Progress = () => {
 
   const totalTests = results.length;
   const avgScore = totalTests > 0 
-    ? (results.reduce((acc, r) => acc + (r.score / r.total_questions), 0) / totalTests * 100).toFixed(1) 
+    ? (results.reduce((acc, r) => acc + (r.score / r.total), 0) / totalTests * 100).toFixed(1) 
     : 0;
 
   return (
@@ -56,7 +56,7 @@ const Progress = () => {
             <p>Деңгей: <strong>{totalTests > 10 ? 'Тәжірибелі (2-деңгей)' : 'Талапкер (1-деңгей)'}</strong></p>
             <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
               <span title="Алғашқы тест" style={{ fontSize: '2rem', opacity: totalTests > 0 ? 1 : 0.3 }}>🏆</span>
-              <span title="Жүздік балл" style={{ fontSize: '2rem', opacity: results.some(r => r.score === r.total_questions) ? 1 : 0.3 }}>🔥</span>
+              <span title="Жүздік балл" style={{ fontSize: '2rem', opacity: results.some(r => r.score === r.total) ? 1 : 0.3 }}>🔥</span>
               <span title="Тұрақтылық" style={{ fontSize: '2rem', opacity: totalTests >= 5 ? 1 : 0.3 }}>🏅</span>
             </div>
           </div>
@@ -73,11 +73,11 @@ const Progress = () => {
             {results.map(r => (
               <div key={r.id} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <h4 style={{ margin: '0 0 0.5rem 0' }}>{r.tests?.title || 'Тест'} ({r.subjects?.title || 'Пән'})</h4>
+                  <h4 style={{ margin: '0 0 0.5rem 0' }}>{r.topics?.title || 'Тест'} ({r.subjects?.name || 'Пән'})</h4>
                   <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>{new Date(r.created_at).toLocaleString('kk-KZ')}</span>
                 </div>
-                <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: (r.score / r.total_questions) >= 0.7 ? 'var(--color-accent)' : 'var(--color-warning)' }}>
-                  {r.score} / {r.total_questions}
+                <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: (r.score / r.total) >= 0.7 ? 'var(--color-accent)' : 'var(--color-warning)' }}>
+                  {r.score} / {r.total}
                 </div>
               </div>
             ))}
