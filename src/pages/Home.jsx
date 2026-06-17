@@ -1,11 +1,56 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Target, BookOpen, Bot, TrendingUp, ChevronRight } from 'lucide-react';
+import { supabase } from '../supabaseClient';
+import { Target, BookOpen, Bot, TrendingUp, ChevronRight, MessageSquare, RefreshCw, GraduationCap, Info } from 'lucide-react';
+
+const allFacts = [
+  { subject: 'Физика', text: 'Жарық жылы - бұл уақыт бірлігі емес, жарықтың бір жылда жүріп өтетін қашықтығы. Бір жарық жылы шамамен 9,46 триллион километрге тең.', color: '#e0f2fe', icon: '⚛️' },
+  { subject: 'Археология', text: 'Ең алғашқы жазу жүйесі шамамен б.з.д. 3500 жылы Месопотамияда шумерлермен ойлап табылды. Бұл клинопись деп аталады.', color: '#fef08a', icon: '🏺' },
+  { subject: 'Экология', text: 'Күн энергиясын пайдаланатын фотосинтез процесінде өсімдіктер көмірқышқыл газын сіңіріп, оттегін бөледі. Бұл Жердегі өмірге өте маңызды.', color: '#f3e8ff', icon: '🌱' },
+  { subject: 'Биология', text: 'Адамның ДНҚ-сының 50%-ы бананның ДНҚ-сымен сәйкес келеді.', color: '#dcfce7', icon: '🧬' },
+  { subject: 'Астрономия', text: 'Күн жүйесіндегі ең үлкен жанартау Марста орналасқан (Олимп тауы), оның биіктігі Эвересттен 3 есе үлкен.', color: '#ffedd5', icon: '🪐' },
+  { subject: 'Химия', text: 'Егер сіз бір стақан суға бір уыс тұз салсаңыз, судың көлемі артпайды, керісінше аздап төмендейді.', color: '#fce7f3', icon: '🧪' },
+  { subject: 'География', text: 'Тынық мұхиты барлық құрлықтарды қосқандағы жалпы ауданнан үлкенірек.', color: '#e0e7ff', icon: '🌍' },
+  { subject: 'Тарих', text: 'Ежелгі римдіктер тіс пастасы ретінде зәрді пайдаланған, өйткені ондағы аммиак тісті ағартады.', color: '#fee2e2', icon: '🏛️' },
+  { subject: 'Математика', text: 'Нөл саны ежелгі Үндістанда б.з. 5 ғасырында ойлап табылған.', color: '#cffafe', icon: '➗' },
+  { subject: 'Әдебиет', text: 'Әлемдегі ең көп сатылатын кітап - Библия, ал екінші орында "Дон Кихот".', color: '#ffedd5', icon: '📖' },
+];
+
+const getRandomFacts = (num) => {
+  const shuffled = [...allFacts].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, num);
+};
 
 const Home = () => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const navigate = useNavigate();
+  const [facts, setFacts] = useState([]);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    setFacts(getRandomFacts(3));
+    
+    if (user) {
+      // Fetch user's test results to calculate progress
+      const fetchProgress = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('test_result')
+            .select('score, total')
+            .eq('user_id', user.id);
+            
+          if (data && data.length > 0) {
+            const avg = data.reduce((acc, r) => acc + (r.score / r.total), 0) / data.length;
+            setProgress(Math.round(avg * 100));
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      };
+      fetchProgress();
+    }
+  }, [user]);
 
   const handleStart = () => {
     if (user) {
@@ -15,6 +60,169 @@ const Home = () => {
     }
   };
 
+  const refreshFacts = () => {
+    setFacts(getRandomFacts(3));
+  };
+
+  // If user is LOGGED IN -> Show Dashboard View (like the Android App)
+  if (user) {
+    return (
+      <div style={{ backgroundColor: '#faf9f5', minHeight: '100vh', padding: '1.5rem 1rem', fontFamily: 'sans-serif' }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+          
+          <h1 style={{ textAlign: 'center', fontSize: '1.5rem', fontWeight: 'bold', color: '#111827', marginBottom: '1.5rem' }}>
+            ҰБТ дайындық
+          </h1>
+
+          {/* Main Welcome Card */}
+          <Link to="/subjects" style={{ textDecoration: 'none' }}>
+            <div style={{ 
+              background: 'linear-gradient(135deg, #1c4532 0%, #b89d3d 100%)',
+              borderRadius: '24px',
+              padding: '1.5rem',
+              color: 'white',
+              marginBottom: '1.5rem',
+              position: 'relative',
+              boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              overflow: 'hidden'
+            }}>
+              <div style={{ zIndex: 1, maxWidth: '70%' }}>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', margin: '0 0 0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  ҰБТ дайындық <GraduationCap size={20} />
+                </h2>
+                <h3 style={{ fontSize: '1.125rem', margin: '0 0 0.5rem 0' }}>Сәлем, {profile?.full_name || 'Талапкер'}!</h3>
+                <p style={{ fontSize: '0.85rem', margin: '0 0 1rem 0', opacity: 0.9 }}>
+                  Пәнді таңдап, тақырыптарды жүйелі түрде оқуды жалғастыр.
+                </p>
+                <div style={{ 
+                  display: 'inline-flex', 
+                  alignItems: 'center', 
+                  gap: '0.25rem', 
+                  backgroundColor: 'rgba(255,255,255,0.2)', 
+                  padding: '0.25rem 0.75rem', 
+                  borderRadius: '9999px',
+                  fontSize: '0.75rem'
+                }}>
+                  <Info size={14} /> Бүгінгі мақсат: 1 тақырып оқу
+                </div>
+              </div>
+              
+              {/* Circular Progress */}
+              <div style={{ zIndex: 1, position: 'relative', width: '80px', height: '80px' }}>
+                <svg viewBox="0 0 36 36" style={{ width: '100%', height: '100%', transform: 'rotate(-90deg)' }}>
+                  <path
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    fill="none"
+                    stroke="rgba(255,255,255,0.2)"
+                    strokeWidth="3"
+                  />
+                  <path
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    fill="none"
+                    stroke="white"
+                    strokeWidth="3"
+                    strokeDasharray={`${progress}, 100`}
+                  />
+                </svg>
+                <div style={{ 
+                  position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', 
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '1rem', fontWeight: 'bold'
+                }}>
+                  {progress}%
+                  <span style={{ fontSize: '0.5rem', fontWeight: 'normal' }}>Прогресс</span>
+                </div>
+              </div>
+            </div>
+          </Link>
+
+          {/* AI Assistant Card */}
+          <div style={{ 
+            background: 'linear-gradient(135deg, #0f766e 0%, #10b981 100%)',
+            borderRadius: '24px',
+            padding: '1.5rem',
+            color: 'white',
+            marginBottom: '2rem',
+            boxShadow: '0 10px 25px rgba(16, 185, 129, 0.2)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+              <div style={{ 
+                width: '60px', height: '60px', borderRadius: '50%', backgroundColor: '#1e293b', 
+                display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid rgba(255,255,255,0.2)' 
+              }}>
+                <Bot size={32} color="#38bdf8" />
+              </div>
+              <div>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', backgroundColor: 'rgba(255,255,255,0.2)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.7rem', marginBottom: '4px' }}>
+                  <Bot size={12} /> ChatGPT
+                </div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', margin: 0 }}>Jas Tulek AI</h3>
+                <p style={{ fontSize: '0.85rem', margin: 0, opacity: 0.9 }}>Жалпы тарих бойынша көмекші</p>
+              </div>
+            </div>
+            
+            <p style={{ fontSize: '0.9rem', marginBottom: '1.5rem', lineHeight: '1.4' }}>
+              Барлық тарихи сұрақтарға жауап беретін ChatGPT негізіндегі ақылды көмекші.
+            </p>
+            
+            <Link to="/ai" style={{ 
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+              backgroundColor: 'white', color: '#0f766e', padding: '0.875rem', borderRadius: '16px',
+              textDecoration: 'none', fontWeight: 'bold', fontSize: '1rem',
+              boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+            }}>
+              <MessageSquare size={18} /> ChatGPT-ге өту
+            </Link>
+          </div>
+
+          {/* Scientific Facts Section */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#111827', margin: 0 }}>Ғылыми қызықтар</h2>
+            <button 
+              onClick={refreshFacts}
+              style={{ 
+                display: 'flex', alignItems: 'center', gap: '0.25rem', 
+                backgroundColor: '#eaf2ec', color: '#1c4532', border: 'none', 
+                padding: '0.4rem 0.75rem', borderRadius: '9999px', fontSize: '0.85rem', fontWeight: '600', cursor: 'pointer'
+              }}
+            >
+              <RefreshCw size={14} /> Жаңарту
+            </button>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {facts.map((fact, i) => (
+              <div key={i} style={{ 
+                backgroundColor: fact.color, 
+                borderRadius: '16px', 
+                padding: '1.25rem',
+                border: '1px solid rgba(0,0,0,0.05)',
+                boxShadow: '0 2px 10px rgba(0,0,0,0.02)'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 'bold', color: '#111827' }}>
+                    <span style={{ fontSize: '1.2rem' }}>{fact.icon}</span> {fact.subject}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#1c4532', backgroundColor: 'white', padding: '2px 8px', borderRadius: '8px' }}>
+                    AI дерек
+                  </div>
+                </div>
+                <p style={{ margin: 0, fontSize: '0.9rem', color: '#374151', lineHeight: '1.5' }}>
+                  {fact.text}
+                </p>
+              </div>
+            ))}
+          </div>
+
+        </div>
+      </div>
+    );
+  }
+
+  // If user is NOT logged in -> Show Landing Page
   const features = [
     { 
       title: 'Жеке оқу траекториясы', 
