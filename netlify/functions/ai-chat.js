@@ -1,4 +1,4 @@
-import fetch from 'node-fetch'; // Netlify functions often have fetch globally, but we can rely on global fetch in Node 18+
+// Netlify functions have global fetch in Node 18+
 
 export const handler = async (event, context) => {
   // Allow only POST requests

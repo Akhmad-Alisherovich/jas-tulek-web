@@ -22,20 +22,6 @@ const TopicDetail = () => {
         if (error) throw error;
         if (data) setTopic(data);
 
-        // Mark as completed in student_progress
-        if (user) {
-          const { error: progressError } = await supabase
-            .from('student_progress')
-            .upsert({
-              user_id: user.id,
-              subject_id: subjectId,
-              topic_id: topicId,
-              progress_percent: 100,
-              is_completed: true,
-              updated_at: new Date().toISOString()
-            }, { onConflict: 'user_id,subject_id,topic_id' });
-          if (progressError) console.error('Error updating progress:', progressError);
-        }
       } catch (err) {
         console.error('Error fetching topic:', err);
       } finally {
